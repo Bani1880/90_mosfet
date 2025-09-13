@@ -1,0 +1,60 @@
+go atlas
+#  
+mesh space.mult=1.0
+#
+x.mesh loc=0.00 spac=0.01
+x.mesh loc=0.025 spac=0.01
+x.mesh loc=0.05 spac=0.01
+x.mesh loc=0.14 spac=0.01
+x.mesh loc=0.165 spac=0.01
+x.mesh loc=0.18 spac=0.01
+x.mesh loc=0.19 spac=0.01
+#
+y.mesh loc=-0.0833 spac=0.01
+y.mesh loc=-0.0711 spac=0.01
+y.mesh loc=-0.065 spac=0.01
+y.mesh loc=-0.055 spac=0.01
+y.mesh loc=0.00 spac=0.01
+#
+region number=1 x.min=0 x.max=0.19 y.min=-0.055 y.max=0 material=Silicon
+region number=2 x.min=0 x.max=0.05 y.min=-0.065 y.max=-0.055 material=silicon
+region number=3 x.min=0.14 x.max=0.19 y.min=-0.065 y.max=-0.055 material=silicon
+region number=4 x.min=0.025 x.max=0.05 y.min=-0.0833 y.max=-0.065 material=HFO2
+region number=5 x.min=0.14 x.max=0.165 y.min=-0.0833 y.max=-0.065 material=HFO2
+region number=6 x.min=0.05 x.max=0.14 y.min=-0.0711 y.max=-0.065 material=HFO2
+region number=7 x.min=0.05 x.max=0.14 y.min=-0.0833 y.max=-0.0711 material=Poly
+region number=8 x.min=0 x.max=0.025 y.min=-0.0833 y.max=-0.065 material=Air
+region number=9 x.min=0.165 x.max=0.19 y.min=-0.0833 y.max=-0.065 material=Air
+region number=10 x.min=0.05 x.max=0.14 y.min=-0.065 y.max=-0.055 material=silicon
+#
+electrode name=gate x.min=0.05 x.max=0.14 y.min=-0.0833 y.max=-0.0833
+electrode name=source x.min=0 x.max=0.025 y.min=-0.065 y.max=-0.065
+electrode name=drain x.min=0.165 x.max=0.19 y.min=-0.065 y.max=-0.065
+#
+doping uniform conc=1e16 p.type region=1
+doping uniform conc=1e16 p.type region=10
+doping uniform conc=1e18 n.type region=2
+doping uniform conc=1e18 n.type region=3
+#
+contact name=gate workfunction=5.2
+contact name=source 
+contact name=drain 
+#
+models conmob srh auger bgn fldmob fermi incomplete print 
+#
+output val.band con.band qfn qfp e.field j.electron j.hole j.conduction j.total ex.field ey.field flowline e.mobility h.mobility qss e.temp h.temp j.disp band.temp permi
+#
+method newton itlimit=25 trap atrap=0.5 maxtrap=4 autonr nrcriterion=0.1 tol.time=0.005 dt.min=1e-25
+#
+solve init
+solve prev
+solve vdrain=0.5
+log outf=mosfet90.log
+solve name=gate vgate=0 vstep=0.1 vfinal=1 
+tonyplot mosfet90.log
+#
+save outf=mosfet90_eq.str
+tonyplot mosfet90_eq.str
+#
+quit
+#
