@@ -1,0 +1,105 @@
+go atlas
+#  
+mesh space.mult=1.0
+#
+x.mesh loc=0.00 spac=0.01
+x.mesh loc=0.025 spac=0.01
+x.mesh loc=0.05 spac=0.01
+x.mesh loc=0.14 spac=0.01
+x.mesh loc=0.165 spac=0.01
+x.mesh loc=0.18 spac=0.01
+x.mesh loc=0.19 spac=0.01
+#
+y.mesh loc=-0.0833 spac=0.01
+y.mesh loc=-0.0711 spac=0.01
+y.mesh loc=-0.065 spac=0.01
+y.mesh loc=-0.063 spac=0.01
+y.mesh loc=-0.06 spac=0.01
+y.mesh loc=-0.055 spac=0.01
+y.mesh loc=0.00 spac=0.01
+#
+region number=1 x.min=0 x.max=0.19 y.min=-0.055 y.max=0 material=SiO2
+region number=2 x.min=0 x.max=0.05 y.min=-0.065 y.max=-0.055 material=silicon
+region number=3 x.min=0.14 x.max=0.19 y.min=-0.065 y.max=-0.055 material=silicon
+region number=4 x.min=0.025 x.max=0.05 y.min=-0.0833 y.max=-0.065 material=HFO2
+region number=5 x.min=0.14 x.max=0.165 y.min=-0.0833 y.max=-0.065 material=HFO2
+region number=6 x.min=0.05 x.max=0.14 y.min=-0.0711 y.max=-0.065 material=HFO2
+region number=7 x.min=0.05 x.max=0.14 y.min=-0.0833 y.max=-0.0711 material=Poly
+region number=8 x.min=0 x.max=0.025 y.min=-0.0833 y.max=-0.065 material=Air
+region number=9 x.min=0.165 x.max=0.19 y.min=-0.0833 y.max=-0.065 material=Air
+region number=10 x.min=0.05 x.max=0.14 y.min=-0.065 y.max=-0.063 material=silicon
+region number=11 x.min=0.05 x.max=0.14 y.min=-0.063 y.max=-0.06 material=silicon
+region number=12 x.min=0.05 x.max=0.14 y.min=-0.06 y.max=-0.055 material=silicon
+#
+electrode name=gate x.min=0.05 x.max=0.14 y.min=-0.0833 y.max=-0.0833
+electrode name=source x.min=0 x.max=0.025 y.min=-0.065 y.max=-0.065
+electrode name=drain x.min=0.165 x.max=0.19 y.min=-0.065 y.max=-0.065
+#
+doping uniform conc=5e16 p.type region=12
+doping uniform conc=1e17 p.type region=11
+doping uniform conc=5e18 p.type region=10
+doping uniform conc=1e18 n.type region=2
+doping uniform conc=1e18 n.type region=3
+#
+contact name=gate workfunction=5.2
+contact name=source 
+contact name=drain 
+#
+models conmob srh auger bgn fldmob fermi incomplete print 
+#
+output val.band con.band qfn qfp e.field j.electron j.hole j.conduction j.total ex.field ey.field flowline e.mobility h.mobility qss e.temp h.temp j.disp band.temp permi
+#
+method newton itlimit=25 trap atrap=0.5 maxtrap=4 autonr nrcriterion=0.1 tol.time=0.005 dt.min=1e-25
+#
+solve init
+solve prev
+solve vdrain=0.5 outf = solve_tmp1
+solve vdrain=0.2 outf = solve_tmp2
+solve vdrain=0.8 outf = solve_tmp3
+solve vdrain=1 outf = solve_tmp4
+
+load infile = solve_tmp1
+log outf=drain_volatge_0.1.log
+solve name=gate vgate=-0.2 vstep=0.01 vfinal=1
+
+load infile = solve_tmp2
+log outf=drain_volatge_0.2.log
+solve name=gate vgate=-0.2 vstep=0.01 vfinal=1
+
+load infile = solve_tmp3
+log outf=drain_volatge_0.3.log
+solve name=gate vgate=-0.2 vstep=0.01 vfinal=1
+
+load infile = solve_tmp4
+log outf=drain_volatge_0.4.log
+solve name=gate vgate=-0.2 vstep=0.01 vfinal=1
+
+tonyplot -overlay drain_volatge_0.1.log drain_volatge_0.2.log drain_volatge_0.3.log drain_volatge_0.4.log 
+#
+quit
+#
+#solve vgate=0.5 outf = solve_tmp1
+#solve vgate=0.6 outf = solve_tmp2
+#solve vgate=0.8 outf = solve_tmp3
+#solve vgate=1 outf = solve_tmp4
+
+#load infile = solve_tmp1
+#log outf=gate_volatge_0.1.log
+#solve name=drain vdrain=0 vstep=0.01 vfinal=1
+
+#load infile = solve_tmp2
+#log outf=gate_volatge_0.2.log
+#solve name=drain vdrain=0 vstep=0.01 vfinal=1
+
+#load infile = solve_tmp3
+#log outf=gate_volatge_0.3.log
+#solve name=drain vdrain=0 vstep=0.01 vfinal=1
+
+#load infile = solve_tmp4
+#log outf=gate_volatge_0.4.log
+#solve name=drain vdrain=0 vstep=0.01 vfinal=1
+
+#tonyplot -overlay gate_volatge_0.1.log gate_volatge_0.2.log gate_volatge_0.3.log gate_volatge_0.4.log 
+# 
+#quit
+#
